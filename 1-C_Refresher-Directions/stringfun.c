@@ -85,6 +85,31 @@ int count_words(char *buff, int len, int str_len) {
 }
 
 //ADD OTHER HELPER FUNCTIONS HERE FOR OTHER REQUIRED PROGRAM OPTIONS
+int reverse_string(char *buff, int len) {
+    if (len <= 0) {
+        return -1;
+    }
+
+    //start and end of string pointers
+    char *start = buff;
+    char *end = buff + len - 1;
+
+    while (end > start && *end == '.') {
+        end--;
+    }
+
+    while (start < end) {
+        //swaps chars
+        char temp = *start;
+        *start = *end;
+        *end = temp;
+        start++;
+        end--;
+    }
+
+    return 0;
+}
+
 
 int main(int argc, char *argv[]) {
 
@@ -153,23 +178,59 @@ int main(int argc, char *argv[]) {
         break;
 
     case 'w':
-        printf("Word Print\n----------\n");
-        int word_start = 0;
-        int word_index = 0;
+    printf("Word Print\n----------\n");
+    int word_start = 0;
+    int word_index = 0;
 
-        for (int i = 0; i <= user_str_len; i++) {
-            if (i == user_str_len || *(buff + i) == ' ') {
-                if (word_start != i) {
+    for (int i = 0; i <= user_str_len; i++) {
+        if (i == user_str_len || *(buff + i) == ' ' || *(buff + i) == '.') {
+            if (word_start != i) {
+                // Check if the current substring is not just dots
+                int is_valid_word = 0;
+                for (int j = word_start; j < i; j++) {
+                    if (*(buff + j) != '.') {
+                        is_valid_word = 1;
+                        break;
+                    }
+                }
+
+                if (is_valid_word) {
                     word_index++;
                     printf("%d. ", word_index);
                     for (int j = word_start; j < i; j++) {
-                        putchar(*(buff + j)); //print
+                        if (*(buff + j) != '.') {
+                            putchar(*(buff + j));
+                        }
                     }
-                    printf(" (%d)\n", i - word_start); //print the word length
+
+                    // Calculate word length excluding dots
+                    int word_len = 0;
+                    for (int j = word_start; j < i; j++) {
+                        if (*(buff + j) != '.') {
+                            word_len++;
+                        }
+                    }
+                    printf(" (%d)\n", word_len);
                 }
-                word_start = i + 1; //move to next word
             }
+            word_start = i + 1;
         }
+    }
+    break;
+
+
+    case 'r':
+        rc = reverse_string(buff, BUFFER_SZ);
+        if (rc < 0) {
+            printf("Error reversing string, rc = %d\n", rc);
+            free(buff);
+            exit(2);
+        }
+        printf("Reversed String: ");
+        for (int i = 0; i < user_str_len; i++) {
+            putchar(*(buff + i));
+        }
+        printf("\n");
         break;
 
     // Other cases here
@@ -195,4 +256,4 @@ int main(int argc, char *argv[]) {
 //
 // THis ensures that the program does not go outside of the buffer range
 //and doesn't have the possibility of accessing memory beyond the buffer,
-//making it safer                                              
+//making it safer
